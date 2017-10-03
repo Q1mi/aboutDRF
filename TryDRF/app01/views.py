@@ -2,36 +2,54 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from app01 import models
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from app01 import serializers
 # Create your views here.
 
 
-def publisher_list(request):
+@api_view(['GET', 'POST'])
+def publisher_list(request, format=None):
+    """
+    列出所有的出版社，或者创建一个新的出版社
+    """
+    if request.method == "GET":
+        queryset = models.Publisher.objects.all()  # 所有的出版社
+        s = serializers.PublisherSerializer(queryset, many=True)
+        return Response(s.data)
 
-    queryset = models.Publisher.objects.all()
+    if request.method == "POST":
+        # 创建出版社
+        s = serializers.PublisherSerializer(data=request.data)
+        if s.is_valid():
+            s.save()
+            return Response(s.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    # data = []
-    # for i in queryset:
-    #     p_tmp = {
-    #         "name": i.name,
-    #         "address": i.address
-    #     }
-    #
-    #     data.append(p_tmp)
+@api_view(['GET', 'PUT', 'DELETE'])
+def publisher_detail(request, pk, format=None):
+    """
+    获取，更新或删除一个出版社实例。
+    """
+    try:
+        publisher = models.Publisher.objects.get(pk=pk)
+    except models.Publisher.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
+    if request.method == 'GET':
+        s = serializers.PublisherSerializer(publisher)
+        return Response(s.data)
 
-    # data = []
-    # from django.forms.models import model_to_dict
-    # for i in queryset:
-    #     data.append(model_to_dict(i))
+    elif request.method == 'PUT':
+        s = serializers.PublisherSerializer(publisher, data=request.data)
+        if s.is_valid():
+            s.save()
+            return Response(s.data)
+        return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # from django.core import serializers
-    #
-    # data = serializers.serialize("json", queryset)
-
-    from app01 import serializers
-
-    serializer = serializers.PublisherSerializer(queryset, many=True)
-
-    import json
-    return HttpResponse(json.dumps(serializer.data), content_type="application/json")
+    elif request.method == 'DELETE':
+        publisher.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
