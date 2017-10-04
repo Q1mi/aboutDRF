@@ -12,6 +12,7 @@ from rest_framework import permissions
 from app01.permissions import IsOwnerOrReadOnly
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
+from rest_framework import viewsets
 
 # Create your views here.
 
@@ -114,21 +115,32 @@ class PublisherDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 
-class BookList(generics.ListCreateAPIView):
+# class BookList(generics.ListCreateAPIView):
+#     queryset = models.Book.objects.all()
+#     serializer_class = serializers.BookSerializer
+#     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+#
+#
+# class BookDetail(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = models.Book.objects.all()
+#     serializer_class = serializers.BookSerializer
+#     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+
+class BookViewSet(viewsets.ModelViewSet):
     queryset = models.Book.objects.all()
     serializer_class = serializers.BookSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
 
-class BookDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = models.Book.objects.all()
-    serializer_class = serializers.BookSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+# class PublisherViewSet(viewsets.ModelViewSet):
+#     queryset = models.Publisher.objects.all()
+#     serializer_class = serializers.PublisherSerializer
+#     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
         'publishers': reverse('publisher-list', request=request, format=format),
-        'books': reverse('book-list', request=request, format=format)
+        # 'books': reverse('book-list', request=request, format=format)
     })
