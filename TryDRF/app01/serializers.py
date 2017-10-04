@@ -24,10 +24,13 @@ from app01 import models
 
 
 class PublisherSerializer(serializers.ModelSerializer):
+    operator = serializers.ReadOnlyField(source="operator.username")
+
     class Meta:
         model = models.Publisher
         fields = (
             "id",
             "name",
-            "address"
+            "address",
+            "operator"
         )

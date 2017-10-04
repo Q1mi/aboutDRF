@@ -8,6 +8,8 @@ from app01 import serializers
 
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework import permissions
+from app01.permissions import IsOwnerOrReadOnly
 
 # Create your views here.
 
@@ -48,6 +50,10 @@ from rest_framework import generics
 class PublisherList(generics.ListCreateAPIView):
     queryset = models.Publisher.objects.all()
     serializer_class = serializers.PublisherSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+    def perform_create(self, serializer):
+        serializer.save(operator=self.request.user)
 
 #
 # class PublisherDetail(APIView):
@@ -103,3 +109,4 @@ class PublisherList(generics.ListCreateAPIView):
 class PublisherDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Publisher.objects.all()
     serializer_class = serializers.PublisherSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
