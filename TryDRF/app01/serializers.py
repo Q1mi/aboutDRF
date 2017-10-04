@@ -34,3 +34,14 @@ class PublisherSerializer(serializers.ModelSerializer):
             "address",
             "operator"
         )
+
+
+class BookSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = models.Book
+        fields = (
+            "id",
+            "title",
+            "publisher"
+        )
